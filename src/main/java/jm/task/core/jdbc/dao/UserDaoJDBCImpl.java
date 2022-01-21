@@ -2,6 +2,7 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+import org.hibernate.Transaction;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,9 +13,7 @@ public class UserDaoJDBCImpl implements UserDao {
     private Connection bdConnection;
     private String SQL;
     private Statement getStatement;
-
     public UserDaoJDBCImpl() {
-
     }
 
     public void createUsersTable() {
@@ -26,8 +25,10 @@ public class UserDaoJDBCImpl implements UserDao {
                 ");";
         try {
             bdConnection = Util.getConnection();
+            bdConnection.setAutoCommit(false);
             getStatement = bdConnection.createStatement();
             getStatement.executeUpdate(SQL);
+            bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
@@ -46,8 +47,10 @@ public class UserDaoJDBCImpl implements UserDao {
 
         try {
             bdConnection = Util.getConnection();
+            bdConnection.setAutoCommit(false);
             getStatement = bdConnection.createStatement();
             getStatement.executeUpdate(SQL);
+            bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
@@ -64,14 +67,14 @@ public class UserDaoJDBCImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
         try {
             bdConnection = Util.getConnection();
+            bdConnection.setAutoCommit(false);
             PreparedStatement preparedStatement =
                     bdConnection.prepareStatement("INSERT INTO user (name, lastName, age) VALUES(?, ?, ?)");
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
             preparedStatement.executeUpdate();
-            /*getStatement = bdConnection.createStatement();
-            getStatement.execute(SQL);*/
+            bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
@@ -89,12 +92,22 @@ public class UserDaoJDBCImpl implements UserDao {
     public void removeUserById(long id) {
         try {
             bdConnection = Util.getConnection();
+            bdConnection.setAutoCommit(false);
             PreparedStatement preparedStatement =
                     bdConnection.prepareStatement("DELETE FROM user WHERE id=?");
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
+            bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+        }finally {
+            if (bdConnection != null) {
+                try {
+                    bdConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -104,8 +117,10 @@ public class UserDaoJDBCImpl implements UserDao {
         ResultSet resultSet;
         try {
             bdConnection = Util.getConnection();
+            bdConnection.setAutoCommit(false);
             getStatement = bdConnection.createStatement();
             resultSet = getStatement.executeQuery(SQL);
+            bdConnection.commit();
             while (true) {
                 User user = new User();
                 try {
