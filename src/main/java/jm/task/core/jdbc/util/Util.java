@@ -1,6 +1,7 @@
 package jm.task.core.jdbc.util;
 
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
@@ -15,6 +16,8 @@ public class Util {
     public static Connection getConnection() throws SQLException {
         Connection conn = null;
         try {
+            Driver driver = new com.mysql.cj.jdbc.Driver();
+            DriverManager.registerDriver(driver);
             conn = DriverManager.getConnection(url, userName, password);
         } catch (SQLException e) {
             e.printStackTrace();

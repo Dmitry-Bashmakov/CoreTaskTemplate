@@ -26,9 +26,7 @@
     <show-object-properties value="false" />
     <loaded-nodes>
       <connection connection-id="2bc1c000-d3bd-4562-9316-21cc01131cf0">
-        <schema name="first_lesson_database" object-types="table, view, procedure, function, column" />
         <schema name="information_schema" object-types="table, view" />
-        <schema name="my_database" object-types="table, view, procedure, function" />
       </connection>
     </loaded-nodes>
   </component>
@@ -609,9 +607,9 @@ ENGINE = InnoDB;]]></console>
     <execution-variables>
       <file file-url="db://2bc1c000-d3bd-4562-9316-21cc01131cf0/consoles/Connection">
         <variable name=":name" dataType="LITERAL" values="Inan" />
+        <variable name=":age" dataType="LITERAL" values="5" />
         <variable name=":idUser" dataType="LITERAL" values="1" />
         <variable name=":lastName" dataType="LITERAL" values="Ivanov" />
-        <variable name=":age" dataType="LITERAL" values="5" />
       </file>
     </execution-variables>
   </component>

@@ -2,7 +2,6 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-import org.hibernate.Transaction;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,16 +20,23 @@ public class UserDaoJDBCImpl implements UserDao {
                 "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n" +
                 "    name varchar(30),\n" +
                 "    lastName varchar(30),\n" +
-                "    age INT(2) unsigned\n" +
+                "    age TINYINT(2) unsigned\n" +
                 ");";
+        Savepoint savepoint = null;
         try {
             bdConnection = Util.getConnection();
             bdConnection.setAutoCommit(false);
+            savepoint = bdConnection.setSavepoint("SavepointOne");
             getStatement = bdConnection.createStatement();
             getStatement.executeUpdate(SQL);
             bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                bdConnection.rollback(savepoint);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }finally {
             if (bdConnection != null) {
                 try {
@@ -44,15 +50,21 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         SQL = "DROP TABLE IF EXISTS user;";
-
+        Savepoint savepoint = null;
         try {
             bdConnection = Util.getConnection();
             bdConnection.setAutoCommit(false);
+            savepoint = bdConnection.setSavepoint("SavepointOne");
             getStatement = bdConnection.createStatement();
             getStatement.executeUpdate(SQL);
             bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                bdConnection.rollback(savepoint);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }finally {
             if (bdConnection != null) {
                 try {
@@ -65,9 +77,11 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
+        Savepoint savepoint = null;
         try {
             bdConnection = Util.getConnection();
             bdConnection.setAutoCommit(false);
+            savepoint = bdConnection.setSavepoint("SavepointOne");
             PreparedStatement preparedStatement =
                     bdConnection.prepareStatement("INSERT INTO user (name, lastName, age) VALUES(?, ?, ?)");
             preparedStatement.setString(1, name);
@@ -77,6 +91,11 @@ public class UserDaoJDBCImpl implements UserDao {
             bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                bdConnection.rollback(savepoint);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }finally {
             if (bdConnection != null) {
                 try {
@@ -90,9 +109,11 @@ public class UserDaoJDBCImpl implements UserDao {
 
 
     public void removeUserById(long id) {
+        Savepoint savepoint = null;
         try {
             bdConnection = Util.getConnection();
             bdConnection.setAutoCommit(false);
+            savepoint = bdConnection.setSavepoint("SavepointOne");
             PreparedStatement preparedStatement =
                     bdConnection.prepareStatement("DELETE FROM user WHERE id=?");
             preparedStatement.setLong(1, id);
@@ -100,6 +121,11 @@ public class UserDaoJDBCImpl implements UserDao {
             bdConnection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                bdConnection.rollback(savepoint);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }finally {
             if (bdConnection != null) {
                 try {
@@ -115,9 +141,11 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> users = new ArrayList<>();
         SQL = "SELECT * FROM user";
         ResultSet resultSet;
+        Savepoint savepoint = null;
         try {
             bdConnection = Util.getConnection();
             bdConnection.setAutoCommit(false);
+            savepoint = bdConnection.setSavepoint("SavepointOne");
             getStatement = bdConnection.createStatement();
             resultSet = getStatement.executeQuery(SQL);
             bdConnection.commit();
@@ -137,6 +165,11 @@ public class UserDaoJDBCImpl implements UserDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                bdConnection.rollback(savepoint);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }finally {
             if (bdConnection != null) {
                 try {
@@ -150,7 +183,30 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        dropUsersTable();
-        createUsersTable();
+        Savepoint savepoint = null;
+        try {
+            bdConnection = Util.getConnection();
+            bdConnection.setAutoCommit(false);
+            savepoint = bdConnection.setSavepoint("SavepointOne");
+            PreparedStatement preparedStatement =
+                    bdConnection.prepareStatement("DELETE FROM user");
+            preparedStatement.executeUpdate();
+            bdConnection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                bdConnection.rollback(savepoint);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }finally {
+            if (bdConnection != null) {
+                try {
+                    bdConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
